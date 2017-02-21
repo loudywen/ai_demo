@@ -1,4 +1,4 @@
-package com.devon.demo.main;
+package com.devon.demo.main.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.ServletComponentScan;
@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  */
 @Configuration
 @EnableWebSecurity
-@ServletComponentScan
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
