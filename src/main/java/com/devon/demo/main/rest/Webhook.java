@@ -20,13 +20,16 @@ import java.net.URI;
  * Created by diwenlao on 2/20/17.
  */
 
-@WebServlet("/webhook")
+@WebServlet(asyncSupported = true, value = "/webhook")
 public class Webhook extends AIWebhookServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(Webhook.class);
+    private RestTemplate restTemplate;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private Webhook(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     @Override
     protected void doWebhook(AIWebhookRequest request, Fulfillment response) {
@@ -41,15 +44,15 @@ public class Webhook extends AIWebhookServlet {
             HttpEntity<String> toRest2 = new HttpEntity<String>(request.getResult().getResolvedQuery(), headers);
 
             ResponseEntity<String> response2 = restTemplate.exchange(uri, HttpMethod.POST, toRest2, String.class);
-            String backToBot = response2.getBody();
 
-            response.setSpeech("You said: " + request.getResult().getResolvedQuery() + "  I said: " + backToBot);
+            response.setSpeech("You said: " + request.getResult().getResolvedQuery() + "  I said: " + response2.getBody());
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
         }
 
-
     }
+
+
 }
 
 
