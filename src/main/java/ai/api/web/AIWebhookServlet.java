@@ -39,76 +39,80 @@ import java.util.Map;
  */
 public abstract class AIWebhookServlet extends HttpServlet {
 
-  private static final String RESPONSE_CONTENT_TYPE = "Content-Type: application/json";
+    private static final String RESPONSE_CONTENT_TYPE = "application/json";
 
-  private static final String RESPONSE_CHARACTER_ENCODING = "utf-8";
+    private static final String RESPONSE_CHARACTER_ENCODING = "utf-8";
 
-  private static final long serialVersionUID = 1L;
-
-  private final Gson gson = GsonFactory.getDefaultFactory().getGson();
-
-  /**
-   * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-   */
-  @Override
-  protected void doPost(HttpServletRequest request, HttpServletResponse response)
-      throws ServletException, IOException {
-    Fulfillment output = new Fulfillment();
-
-    doWebhook(gson.fromJson(request.getReader(), AIWebhookRequest.class), output);
-
-    response.setCharacterEncoding(RESPONSE_CHARACTER_ENCODING);
-    response.setContentType(RESPONSE_CONTENT_TYPE);
-    gson.toJson(output, response.getWriter());
-  }
-
-  /**
-   * Web-hook processing method.
-   * @param input Received request object 
-   * @param output Response object. Should be filled in the method.
-   */
-  protected abstract void doWebhook(AIWebhookRequest input, Fulfillment output);
-
-  /**
-   * Web-hook request model class
-   */
-  protected static class AIWebhookRequest extends AIResponse {
     private static final long serialVersionUID = 1L;
 
-    private OriginalRequest originalRequest;
+    private final Gson gson = GsonFactory.getDefaultFactory().getGson();
 
     /**
-     * Get original request object
-     * @return <code>null</code> if original request undefined in
-     * request object
+     * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
-    public OriginalRequest getOriginalRequest() {
-      return originalRequest;
-    }
-  }
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        Fulfillment output = new Fulfillment();
 
-  /**
-   * Original request model class
-   */
-  protected static class OriginalRequest implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private String source;
-    private Map<String, ?> data;
+        doWebhook(gson.fromJson(request.getReader(), AIWebhookRequest.class), output);
 
-    /**
-     * Get source description string
-     * @return <code>null</code> if source isn't defined in a request
-     */
-    public String getSource() {
-      return source;
+       response.setCharacterEncoding(RESPONSE_CHARACTER_ENCODING);
+       response.setContentType(RESPONSE_CONTENT_TYPE);
+        gson.toJson(output, response.getWriter());
     }
 
     /**
-     * Get data map
-     * @return <code>null</code> if data isn't defined in a request
+     * Web-hook processing method.
+     *
+     * @param input  Received request object
+     * @param output Response object. Should be filled in the method.
      */
-    public Map<String, ?> getData() {
-      return data;
+    protected abstract void doWebhook(AIWebhookRequest input, Fulfillment output);
+
+    /**
+     * Web-hook request model class
+     */
+    protected static class AIWebhookRequest extends AIResponse {
+        private static final long serialVersionUID = 1L;
+
+        private OriginalRequest originalRequest;
+
+        /**
+         * Get original request object
+         *
+         * @return <code>null</code> if original request undefined in
+         * request object
+         */
+        public OriginalRequest getOriginalRequest() {
+            return originalRequest;
+        }
     }
-  }
+
+    /**
+     * Original request model class
+     */
+    protected static class OriginalRequest implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private String source;
+        private Map<String, ?> data;
+
+        /**
+         * Get source description string
+         *
+         * @return <code>null</code> if source isn't defined in a request
+         */
+        public String getSource() {
+            return source;
+        }
+
+        /**
+         * Get data map
+         *
+         * @return <code>null</code> if data isn't defined in a request
+         */
+        public Map<String, ?> getData() {
+            return data;
+        }
+    }
 }

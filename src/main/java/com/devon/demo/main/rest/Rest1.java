@@ -1,45 +1,33 @@
 package com.devon.demo.main.rest;
 
-import ai.api.GsonFactory;
 import ai.api.model.Fulfillment;
-import com.google.gson.Gson;
+import ai.api.web.AIWebhookServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
+import javax.servlet.annotation.WebServlet;
 
 /**
  * Created by diwenlao on 2/20/17.
  */
-@RestController
-public class Rest1 {
+
+@WebServlet("/webhook")
+public class Rest1 extends AIWebhookServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(Rest1.class);
-    private Gson gson = GsonFactory.getDefaultFactory().getGson();
+    private RestTemplate restTemplate = new RestTemplate();
+    @Override
+    protected void doWebhook(AIWebhookRequest request, Fulfillment response) {
+        logger.info("got hit by api.ai!");
+        ResponseEntity<String> response2 = restTemplate.postForEntity("/anotherrestcall", request.getResult().getResolvedQuery(), String.class);
+        String backToBot = response2.getBody();
 
-    @PostMapping("/webhook")
-    public ResponseEntity<Fulfillment> entry(RequestEntity<String> requestEntity) throws IOException {
-        logger.info("got hit from api.ai");
-        /*Enumeration headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String key = (String) headerNames.nextElement();
-            String value = request.getHeader(key);
-           logger.info(value);
-        }*/
 
-        logger.info("======\n {}", requestEntity.getBody());
-        Fulfillment response = new Fulfillment();
-        response.setSpeech("haha, I am from rest endpoint");
-        ResponseEntity<Fulfillment> responseEntity = new ResponseEntity<>(response, HttpStatus.OK);
+        response.setSpeech("You said: " + request.getResult().getResolvedQuery()+ " I said: "+ backToBot);
 
-        return responseEntity;
     }
-
 }
 
 
