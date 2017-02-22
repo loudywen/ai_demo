@@ -25,6 +25,7 @@ public class Webhook extends AIWebhookServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(Webhook.class);
     private RestTemplate restTemplate;
+    private static final String url = "https://52.41.71.62:8080/anotherrestcall";
 
     @Autowired
     private Webhook(RestTemplate restTemplate) {
@@ -35,7 +36,6 @@ public class Webhook extends AIWebhookServlet {
     protected void doWebhook(AIWebhookRequest request, Fulfillment response) {
         logger.debug("got hit by api.ai!");
         logger.debug("Client ask: {}", request.getResult().getResolvedQuery());
-        String url = "http://52.41.71.62:8080/anotherrestcall";
         try {
             URI uri = new URI(url);
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
