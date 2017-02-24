@@ -26,6 +26,8 @@ public class Webhook extends AIWebhookServlet {
     @Autowired
     private Environment env;
 
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
 
     private static final String EXCEPTION_RESPONSE = "Service is under maintenance";
     private static final Logger logger = LoggerFactory.getLogger(Webhook.class);
@@ -52,28 +54,30 @@ public class Webhook extends AIWebhookServlet {
             HttpEntity<String> toRest2 = new HttpEntity<String>(request.getResult().getResolvedQuery(), headers);
 
             ResponseEntity<String> response2 = restTemplate.exchange(uri, HttpMethod.POST, toRest2, String.class);
+            */
 
-            String key = request.getOriginalRequest().getSource();
+
+            Result result = request.getResult();
+
+            Action action = new TakeAction(result, (request.getOriginalRequest() != null) ? request.getOriginalRequest().getSource() : null, dummyDB, restTemplate);
+
+
+           /* String key = request.getOriginalRequest().getSource();
             String channel = (String) request.getOriginalRequest().getData().get("channel");
             String team = (String) request.getOriginalRequest().getData().get("team");
             String user = (String) request.getOriginalRequest().getData().get("user");
-*/
-
-        /*    Message message = new MessageBuilder()
+            Message message = new MessageBuilder()
                     .setChannel(channel)
                     .setUsername(user)
-                    .setText(response2.getBody())
+                    .setText(action.responseToAction())
                     .build();
+
+
             JsonElement json = gson.fromJson(gson.toJsonTree(message), JsonElement.class);
 
             Map<String, JsonElement> data = new HashMap<>();
             data.put("slack", json);
             response.setData(data);*/
-
-            Result result = request.getResult();
-
-            Action action = new TakeAction(result, (request.getOriginalRequest()!=null)?request.getOriginalRequest().getSource():null, dummyDB,restTemplate);
-
             response.setSpeech(action.responseToAction());
 
         } catch (Exception ex) {

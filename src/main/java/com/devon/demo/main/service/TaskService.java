@@ -7,5 +7,5 @@ import org.springframework.http.ResponseEntity;
  */
 public interface TaskService {
 
-    ResponseEntity<String> buildResponse();
+    ResponseEntity<String> buildResponse(String userid);
 }

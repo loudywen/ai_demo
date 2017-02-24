@@ -1,3 +1,4 @@
+/*
 package com.devon.demo.main.rest;
 
 import com.devon.demo.main.service.TaskService;
@@ -12,9 +13,11 @@ import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.concurrent.CompletableFuture;
 
+*/
 /**
  * Created by diwenlao on 2/21/17.
- */
+ *//*
+
 @RestController
 public class DummyRest_1 {
 
@@ -45,3 +48,4 @@ public class DummyRest_1 {
     }
 
 }
+*/
