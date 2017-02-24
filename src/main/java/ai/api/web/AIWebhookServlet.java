@@ -47,6 +47,8 @@ public abstract class AIWebhookServlet extends HttpServlet {
 
     private final Gson gson = GsonFactory.getDefaultFactory().getGson();
 
+
+
     /**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
      */
@@ -57,8 +59,8 @@ public abstract class AIWebhookServlet extends HttpServlet {
 
         doWebhook(gson.fromJson(request.getReader(), AIWebhookRequest.class), output);
 
-       response.setCharacterEncoding(RESPONSE_CHARACTER_ENCODING);
-       response.setContentType(RESPONSE_CONTENT_TYPE);
+        response.setCharacterEncoding(RESPONSE_CHARACTER_ENCODING);
+        response.setContentType(RESPONSE_CONTENT_TYPE);
         gson.toJson(output, response.getWriter());
     }
 

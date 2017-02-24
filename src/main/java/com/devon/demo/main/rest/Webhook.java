@@ -1,20 +1,19 @@
 package com.devon.demo.main.rest;
 
 import ai.api.model.Fulfillment;
+import ai.api.model.Result;
 import ai.api.web.AIWebhookServlet;
-import com.devon.demo.util.Utility;
+import com.devon.demo.main.service.Action;
+import com.devon.demo.main.service.TakeAction;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.core.env.Environment;
 import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.annotation.WebServlet;
-import java.net.URI;
 
 /**
  * Created by diwenlao on 2/20/17.
@@ -23,21 +22,28 @@ import java.net.URI;
 @WebServlet(asyncSupported = true, value = "/webhook")
 public class Webhook extends AIWebhookServlet {
 
+    @Autowired
+    private Environment env;
+    private static final String EXCEPTION_RESPONSE = "Service is under maintenance";
     private static final Logger logger = LoggerFactory.getLogger(Webhook.class);
+    private Action action;
     private RestTemplate restTemplate;
-    private static final String url = "https://52.41.71.62:8080/anotherrestcall";
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @Autowired
     private Webhook(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
+
     }
 
     @Override
     protected void doWebhook(AIWebhookRequest request, Fulfillment response) {
-        logger.debug("got hit by api.ai!");
-        logger.debug("Client ask: {}", request.getResult().getResolvedQuery());
+
+        logger.debug("Received request: {}", request);
+
+
         try {
-            URI uri = new URI(url);
+            /*URI uri = new URI(env.getProperty("dummrest1.rest1"));
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
             headers.add("Content-Type", "text/plain");
             headers.add("Authorization", "Basic " + Utility.encodeAuthorization("user", "password"));
@@ -45,8 +51,30 @@ public class Webhook extends AIWebhookServlet {
 
             ResponseEntity<String> response2 = restTemplate.exchange(uri, HttpMethod.POST, toRest2, String.class);
 
-            response.setSpeech("You said: " + request.getResult().getResolvedQuery() + "  I said: " + response2.getBody());
+            String key = request.getOriginalRequest().getSource();
+            String channel = (String) request.getOriginalRequest().getData().get("channel");
+            String team = (String) request.getOriginalRequest().getData().get("team");
+            String user = (String) request.getOriginalRequest().getData().get("user");
+*/
+
+        /*    Message message = new MessageBuilder()
+                    .setChannel(channel)
+                    .setUsername(user)
+                    .setText(response2.getBody())
+                    .build();
+            JsonElement json = gson.fromJson(gson.toJsonTree(message), JsonElement.class);
+
+            Map<String, JsonElement> data = new HashMap<>();
+            data.put("slack", json);
+            response.setData(data);*/
+
+            Result result = request.getResult();
+            action = new TakeAction(result,request.getOriginalRequest().getSource());
+
+            response.setSpeech(action.responseToAction());
+
         } catch (Exception ex) {
+            response.setSpeech(EXCEPTION_RESPONSE);
             logger.error(ex.getMessage(), ex);
         }
 
