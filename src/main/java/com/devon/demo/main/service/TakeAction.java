@@ -1,6 +1,8 @@
 package com.devon.demo.main.service;
 
 import ai.api.model.Result;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -13,11 +15,12 @@ public class TakeAction implements Action {
     private String source;
     private DummyDB dummyDB;
     private RestTemplate restTemplate;
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     private String[] responseSentence = {"can you provide your pin number", "you are not a valid user"};
 
     private static final String USER_ID = "userid";
-    private static final String PIN = "pin";
+    private static final String PIN = "number-sequence";
     private static final String ENTER_USER_ID = "enter.userid";
     private static final String USER_VALID = "user.valid";
 
@@ -55,9 +58,11 @@ public class TakeAction implements Action {
 
     private String userValid() {
         String response ;
-        if(dummyDB.findPin(result.getStringParameter(USER_ID), result.getIntParameter(PIN))){
+
+
+        if(dummyDB.findPin(result.getStringParameter(USER_ID),result.getParameters().get("pin").getAsJsonObject().get(PIN).getAsInt())){
             // call SAP here
-            if(source.equals("slack")){
+            if(source!=null && source.equals("slack")){
                 response = "You are all set";
             }else{
                 response = "We will send you an Email with all your details";

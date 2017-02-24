@@ -31,7 +31,6 @@ public class Webhook extends AIWebhookServlet {
     private static final Logger logger = LoggerFactory.getLogger(Webhook.class);
     private RestTemplate restTemplate;
     private DummyDB dummyDB;
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @Autowired
     private Webhook(RestTemplate restTemplate, DummyDB dummyDB) {
@@ -72,12 +71,14 @@ public class Webhook extends AIWebhookServlet {
             response.setData(data);*/
 
             Result result = request.getResult();
-            Action action = new TakeAction(result, request.getOriginalRequest().getSource(), dummyDB,restTemplate);
+
+            Action action = new TakeAction(result, (request.getOriginalRequest()!=null)?request.getOriginalRequest().getSource():null, dummyDB,restTemplate);
 
             response.setSpeech(action.responseToAction());
 
         } catch (Exception ex) {
             response.setSpeech(EXCEPTION_RESPONSE);
+
             logger.error(ex.getMessage(), ex);
         }
 
