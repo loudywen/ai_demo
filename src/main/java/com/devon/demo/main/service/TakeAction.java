@@ -1,9 +1,7 @@
 package com.devon.demo.main.service;
 
 import ai.api.model.Result;
-
-import java.util.Arrays;
-import java.util.List;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Created by diwenlao on 2/23/17.
@@ -13,9 +11,8 @@ public class TakeAction implements Action {
 
     private Result result;
     private String source;
-
-    private List dummyUserDB = Arrays.asList("dilao1");
-    
+    private DummyDB dummyDB;
+    private RestTemplate restTemplate;
 
     private String[] responseSentence = {"can you provide your pin number", "you are not a valid user"};
 
@@ -24,9 +21,11 @@ public class TakeAction implements Action {
     private static final String ENTER_USER_ID = "enter.userid";
     private static final String USER_VALID = "user.valid";
 
-    public TakeAction(Result result, String source) {
+    public TakeAction(Result result, String source, DummyDB dummyDB, RestTemplate restTemplate) {
         this.result = result;
         this.source = source;
+        this.dummyDB = dummyDB;
+        this.restTemplate = restTemplate;
     }
 
 
@@ -39,7 +38,6 @@ public class TakeAction implements Action {
         } else if (result.getAction().equalsIgnoreCase(USER_VALID)) {
             response = userValid();
         }
-
         return response;
     }
 
@@ -47,7 +45,7 @@ public class TakeAction implements Action {
     private String enterUserId() {
 
         String response;
-        if (dummyUserDB.contains(result.getParameters().get(USER_ID))) {
+        if (dummyDB.findUserID(result.getStringParameter(USER_ID))) {
             response = responseSentence[0];
         } else {
             response = responseSentence[1];
@@ -56,6 +54,18 @@ public class TakeAction implements Action {
     }
 
     private String userValid() {
-        return null;
+        String response ;
+        if(dummyDB.findPin(result.getStringParameter(USER_ID), result.getIntParameter(PIN))){
+            // call SAP here
+            if(source.equals("slack")){
+                response = "You are all set";
+            }else{
+                response = "We will send you an Email with all your details";
+            }
+        }else{
+            response = "Invaild PIN";
+        }
+
+        return response;
     }
 }

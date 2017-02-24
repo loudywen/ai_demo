@@ -4,6 +4,7 @@ import ai.api.model.Fulfillment;
 import ai.api.model.Result;
 import ai.api.web.AIWebhookServlet;
 import com.devon.demo.main.service.Action;
+import com.devon.demo.main.service.DummyDB;
 import com.devon.demo.main.service.TakeAction;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -24,16 +25,18 @@ public class Webhook extends AIWebhookServlet {
 
     @Autowired
     private Environment env;
+
+
     private static final String EXCEPTION_RESPONSE = "Service is under maintenance";
     private static final Logger logger = LoggerFactory.getLogger(Webhook.class);
-    private Action action;
     private RestTemplate restTemplate;
+    private DummyDB dummyDB;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     @Autowired
-    private Webhook(RestTemplate restTemplate) {
+    private Webhook(RestTemplate restTemplate, DummyDB dummyDB) {
         this.restTemplate = restTemplate;
-
+        this.dummyDB = dummyDB;
     }
 
     @Override
@@ -69,7 +72,7 @@ public class Webhook extends AIWebhookServlet {
             response.setData(data);*/
 
             Result result = request.getResult();
-            action = new TakeAction(result,request.getOriginalRequest().getSource());
+            Action action = new TakeAction(result, request.getOriginalRequest().getSource(), dummyDB,restTemplate);
 
             response.setSpeech(action.responseToAction());
 
