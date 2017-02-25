@@ -2,6 +2,7 @@ package com.devon.demo.main.service;
 
 import ai.api.model.Result;
 import com.devon.demo.main.AiDemoApplication;
+import com.devon.demo.main.model.sapdetail.SapDetailRoot;
 import com.devon.demo.util.Utility;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -45,6 +46,7 @@ public class TakeAction implements Action {
     private TaskService taskService;
     private Environment env;
 
+
     public TakeAction(Result result, String source, DummyDB dummyDB, RestTemplate restTemplate) {
         this.result = result;
         this.source = source;
@@ -71,7 +73,7 @@ public class TakeAction implements Action {
     private String userValidate() {
 
         String response;
-        if (dummyDB.findUserID(result.getStringParameter(USER_ID))) {
+        if (dummyDB.findUserID(result.getStringParameter(USER_ID).toLowerCase())) {
             response = checkSource(responseSentence[0]);
 
         } else {
@@ -83,14 +85,16 @@ public class TakeAction implements Action {
 
     private String pinValidate() {
         String response;
-        if (dummyDB.findPin(result.getStringParameter(USER_ID), result.getIntParameter(PIN))) {
+        if (dummyDB.findUserID(result.getStringParameter(USER_ID).toLowerCase())) {
+            if (dummyDB.findPin(result.getStringParameter(USER_ID).toLowerCase(), result.getIntParameter(PIN))) {
+                ResponseEntity<String> sapGetRoleDetailsResponse = callSAPToGetRoleDetails(result.getStringParameter(USER_ID).toLowerCase());
 
-            ResponseEntity<String> sapGetRoleDetailsResponse = callSAPToGetRoleDetails(result.getStringParameter(USER_ID));
-
-            response = checkSourceForPinValid(sapGetRoleDetailsResponse.getBody().toString());
-
+                response = checkSourceForSapDetailReply(sapGetRoleDetailsResponse.getBody().toString());
+            } else {
+                response = checkSource("Invalid PIN, do you want to try again?");
+            }
         } else {
-            response = checkSource("Invalid PIN, do you want to try again?");
+            response = checkSource(responseSentence[1]);
         }
 
         return response;
@@ -144,11 +148,22 @@ public class TakeAction implements Action {
         return response;
     }
 
-    private String checkSourceForPinValid(String responseMsgToSlack) {
+    private String checkSourceForSapDetailReply(String responseMsgToSlack) {
+
+        String concatMsg = null;
+        if (responseMsgToSlack.contains("errordetails")) {
+            // TODO error detail
+        } else {
+            SapDetailRoot sdr = gson.fromJson(responseMsgToSlack, SapDetailRoot.class);
+            concatMsg = sdr.getD().getAgrtext();
+
+        }
+
+
         String response;
         if (source != null && source.equals("slack")) {
             logger.debug("============{}", responseMsgToSlack);
-            response = FOR_RESPONSE_BACK_TO_SLACK_SENDER + responseMsgToSlack;
+            response = concatMsg;
 
         } else {
             if (responseMsgToSlack.equals("SAP server is down, please come back later")) {

@@ -76,7 +76,15 @@ public class Webhook extends AIWebhookServlet {
             Map<String, JsonElement> data = new HashMap<>();
             data.put("slack", json);
             response.setData(data);*/
+
+
             response.setSpeech(action.responseToAction());
+            /*AIOutputContext outContext = new AIOutputContext();
+            outContext.setLifespan(1);
+            outContext.setName("pre-input");
+
+            response.setContextOut(outContext);*/
+
 
         } catch (Exception ex) {
             response.setSpeech(EXCEPTION_RESPONSE);

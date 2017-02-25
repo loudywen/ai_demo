@@ -18,10 +18,10 @@ public class DummyDBImpl implements DummyDB {
     private static final Logger logger = LoggerFactory.getLogger(DummyDBImpl.class);
 
     public DummyDBImpl() {
-        usersDB.put(1, "ADMIN");
-        usersDB.put(2, "testUser");
+        usersDB.put(1, "admin");
+        usersDB.put(2, "wronguser");
         pinDB.put(usersDB.get(1), 1234);
-        pinDB.put(usersDB.get(2), 5678);
+        pinDB.put(usersDB.get(2), 1234);
     }
 
     @Override
