@@ -1,3 +1,4 @@
+/*
 package com.devon.demo.main.service;
 
 import com.devon.demo.util.Utility;
@@ -16,9 +17,11 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 
+*/
 /**
  * Created by diwenlao on 2/21/17.
- */
+ *//*
+
 @Service
 public class GetRoleDetailsAsyncTaskImpl implements TaskService {
     private static final Logger logger = LoggerFactory.getLogger(GetRoleDetailsAsyncTaskImpl.class);
@@ -55,3 +58,4 @@ public class GetRoleDetailsAsyncTaskImpl implements TaskService {
 
     }
 }
+*/

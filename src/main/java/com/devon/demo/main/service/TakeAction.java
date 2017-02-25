@@ -49,7 +49,7 @@ public class TakeAction implements Action {
         this.source = source;
         this.dummyDB = dummyDB;
         this.restTemplate = restTemplate;
-        this.taskService = (GetRoleDetailsAsyncTaskImpl) AiDemoApplication.getApplicationContext().getBean("getRoleDetailsAsyncTaskImpl");
+//        this.taskService = (GetRoleDetailsAsyncTaskImpl) AiDemoApplication.getApplicationContext().getBean("getRoleDetailsAsyncTaskImpl");
         this.env = AiDemoApplication.getApplicationContext().getEnvironment();
     }
 
@@ -59,15 +59,15 @@ public class TakeAction implements Action {
 
         String response = null;
         if (result.getAction().equalsIgnoreCase(ENTER_USER_ID)) {
-            response = enterUserId();
+            response = userValidate();
         } else if (result.getAction().equalsIgnoreCase(PIN_INTENT)) {
-            response = userValid();
+            response = pinValidate();
         }
         return response;
     }
 
 
-    private String enterUserId() {
+    private String userValidate() {
 
         String response;
         if (dummyDB.findUserID(result.getStringParameter(USER_ID))) {
@@ -80,12 +80,9 @@ public class TakeAction implements Action {
     }
 
 
-    private String userValid() {
+    private String pinValidate() {
         String response;
-
-
         if (dummyDB.findPin(result.getStringParameter(USER_ID), result.getIntParameter(PIN))) {
-            // call SAP here later
 
             ResponseEntity<String> re = callSAPToGetRoleDetails(result.getStringParameter(USER_ID));
 
@@ -153,7 +150,6 @@ public class TakeAction implements Action {
             response = FOR_RESPONSE_BACK_TO_SLACK_SENDER + responseMsgToSlack;
 
         } else {
-
             if (responseMsgToSlack.equals("SAP server is down, please come back later")) {
                 response = responseMsgToSlack;
             } else {
