@@ -34,12 +34,13 @@ public class TakeAction implements Action {
 
     private String[] responseSentence = {"can you provide your pin number", "you are not a valid user, do you want to provide your user id again"};
 
-    //    private static final String FOR_RESPONSE_BACK_TO_SLACK_SENDER = "<@#generic.slack_user_id> ";
+    //private static final String FOR_RESPONSE_BACK_TO_SLACK_SENDER = "<@#generic.slack_user_id> ";
     private static final String FOR_RESPONSE_BACK_TO_SLACK_SENDER = "";
 
     private static final String USER_ID = "userid";
     private static final String PIN = "pin";
-    private static final String ENTER_USER_ID = "enter.userid";
+
+    private static final String ENTER_USER_ID_INTENT = "enter.userid";
     private static final String PIN_INTENT = "pin";
     private TaskService taskService;
     private Environment env;
@@ -58,7 +59,7 @@ public class TakeAction implements Action {
     public String responseToAction() {
 
         String response = null;
-        if (result.getAction().equalsIgnoreCase(ENTER_USER_ID)) {
+        if (result.getAction().equalsIgnoreCase(ENTER_USER_ID_INTENT)) {
             response = userValidate();
         } else if (result.getAction().equalsIgnoreCase(PIN_INTENT)) {
             response = pinValidate();
@@ -84,9 +85,9 @@ public class TakeAction implements Action {
         String response;
         if (dummyDB.findPin(result.getStringParameter(USER_ID), result.getIntParameter(PIN))) {
 
-            ResponseEntity<String> re = callSAPToGetRoleDetails(result.getStringParameter(USER_ID));
+            ResponseEntity<String> sapGetRoleDetailsResponse = callSAPToGetRoleDetails(result.getStringParameter(USER_ID));
 
-            response = checkSourceForPinValid(re.getBody().toString());
+            response = checkSourceForPinValid(sapGetRoleDetailsResponse.getBody().toString());
 
         } else {
             response = checkSource("Invalid PIN, do you want to try again?");
@@ -96,7 +97,7 @@ public class TakeAction implements Action {
     }
 
     private ResponseEntity<String> callSAPToGetRoleDetails(String userid) {
-        ResponseEntity<String> response2;
+        ResponseEntity<String> sapGetRoleDetailsResponse;
         try {
             String url = String.format(env.getProperty("sap.roles.details"), userid);
 
@@ -107,8 +108,8 @@ public class TakeAction implements Action {
             headers.add("Authorization", "Basic " + Utility.encodeAuthorization("mssbots", "Miracle@121"));
 
             HttpEntity<String> toRest2 = new HttpEntity<String>(headers);
-            response2 = restTemplate.exchange(uri, HttpMethod.GET, toRest2, String.class);
-            logger.debug(response2.getBody().toString());
+            sapGetRoleDetailsResponse = restTemplate.exchange(uri, HttpMethod.GET, toRest2, String.class);
+            logger.debug("SAP get role details response: {}", sapGetRoleDetailsResponse.getBody().toString());
 
            /* logger.debug("Async call - enter");
            *//* DeferredResult<String> deferredResult = new DeferredResult<>();
@@ -123,11 +124,11 @@ public class TakeAction implements Action {
            /* logger.debug("Async call - release");*/
 
 
-            return response2;
+            return sapGetRoleDetailsResponse;
         } catch (Exception ex) {
             logger.error(ex.getMessage(), ex);
-            response2 = new ResponseEntity<String>("SAP server is down, please come back later", HttpStatus.OK);
-            return response2;
+            sapGetRoleDetailsResponse = new ResponseEntity<String>("SAP server is down, please come back later", HttpStatus.OK);
+            return sapGetRoleDetailsResponse;
         }
 
     }
@@ -154,6 +155,7 @@ public class TakeAction implements Action {
                 response = responseMsgToSlack;
             } else {
                 response = "We will send you an Email with all your details";
+                //TODO Send Email here later
             }
         }
         return response;

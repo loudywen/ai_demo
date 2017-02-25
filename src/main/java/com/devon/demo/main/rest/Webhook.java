@@ -28,8 +28,7 @@ public class Webhook extends AIWebhookServlet {
 
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-
-    private static final String EXCEPTION_RESPONSE = "Service is under maintenance";
+    private static final String EXCEPTION_RESPONSE = "Service is under maintenance or some exception happen at the backend :(";
     private static final Logger logger = LoggerFactory.getLogger(Webhook.class);
     private RestTemplate restTemplate;
     private DummyDB dummyDB;
@@ -58,7 +57,6 @@ public class Webhook extends AIWebhookServlet {
 
 
             Result result = request.getResult();
-
             Action action = new TakeAction(result, (request.getOriginalRequest() != null) ? request.getOriginalRequest().getSource() : null, dummyDB, restTemplate);
 
 
@@ -82,10 +80,8 @@ public class Webhook extends AIWebhookServlet {
 
         } catch (Exception ex) {
             response.setSpeech(EXCEPTION_RESPONSE);
-
             logger.error(ex.getMessage(), ex);
         }
-
     }
 
 
