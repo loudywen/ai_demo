@@ -57,8 +57,7 @@ public class Webhook extends AIWebhookServlet {
 
 
             Result result = request.getResult();
-            Action action = new TakeAction(result, (request.getOriginalRequest() != null) ? request.getOriginalRequest().getSource() : null, dummyDB, restTemplate);
-
+            Action action = new TakeAction(response,result, (request.getOriginalRequest() != null) ? request.getOriginalRequest().getSource() : null, dummyDB, restTemplate);
 
            /* String key = request.getOriginalRequest().getSource();
             String channel = (String) request.getOriginalRequest().getData().get("channel");
@@ -79,11 +78,7 @@ public class Webhook extends AIWebhookServlet {
 
 
             response.setSpeech(action.responseToAction());
-            /*AIOutputContext outContext = new AIOutputContext();
-            outContext.setLifespan(1);
-            outContext.setName("pre-input");
 
-            response.setContextOut(outContext);*/
 
 
         } catch (Exception ex) {

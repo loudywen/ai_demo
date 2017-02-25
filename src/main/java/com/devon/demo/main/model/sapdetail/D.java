@@ -21,11 +21,9 @@ public class D {
     private String agrtext;
     @JsonProperty("OrgFlag")
     private String orgflag;
-
     public void set_metadata(_metadata _metadata) {
         this._metadata = _metadata;
     }
-
     public _metadata get_metadata() {
         return _metadata;
     }
@@ -33,7 +31,6 @@ public class D {
     public void setUsername(String username) {
         this.username = username;
     }
-
     public String getUsername() {
         return username;
     }
@@ -41,7 +38,6 @@ public class D {
     public void setAgrname(String agrname) {
         this.agrname = agrname;
     }
-
     public String getAgrname() {
         return agrname;
     }
@@ -49,7 +45,6 @@ public class D {
     public void setFromdat(String fromdat) {
         this.fromdat = fromdat;
     }
-
     public String getFromdat() {
         return fromdat;
     }
@@ -57,7 +52,6 @@ public class D {
     public void setTodat(String todat) {
         this.todat = todat;
     }
-
     public String getTodat() {
         return todat;
     }
@@ -65,7 +59,6 @@ public class D {
     public void setAgrtext(String agrtext) {
         this.agrtext = agrtext;
     }
-
     public String getAgrtext() {
         return agrtext;
     }
@@ -73,7 +66,6 @@ public class D {
     public void setOrgflag(String orgflag) {
         this.orgflag = orgflag;
     }
-
     public String getOrgflag() {
         return orgflag;
     }

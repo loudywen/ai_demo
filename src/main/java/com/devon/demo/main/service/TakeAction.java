@@ -4,8 +4,6 @@ import ai.api.model.Result;
 import com.devon.demo.main.AiDemoApplication;
 import com.devon.demo.main.model.sapdetail.SapDetailRoot;
 import com.devon.demo.util.Utility;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -30,7 +28,6 @@ public class TakeAction implements Action {
     private String source;
     private DummyDB dummyDB;
     private RestTemplate restTemplate;
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private static final Logger logger = LoggerFactory.getLogger(TakeAction.class);
 
     private String[] responseSentence = {"can you provide your pin number", "you are not a valid user, do you want to provide your user id again"};
@@ -88,7 +85,6 @@ public class TakeAction implements Action {
         if (dummyDB.findUserID(result.getStringParameter(USER_ID).toLowerCase())) {
             if (dummyDB.findPin(result.getStringParameter(USER_ID).toLowerCase(), result.getIntParameter(PIN))) {
                 ResponseEntity<String> sapGetRoleDetailsResponse = callSAPToGetRoleDetails(result.getStringParameter(USER_ID).toLowerCase());
-
                 response = checkSourceForSapDetailReply(sapGetRoleDetailsResponse.getBody().toString());
             } else {
                 response = checkSource("Invalid PIN, do you want to try again?");
@@ -129,10 +125,6 @@ public class TakeAction implements Action {
 
 
             return sapGetRoleDetailsResponse;
-        } catch (Exception ex) {
-            logger.error(ex.getMessage(), ex);
-            sapGetRoleDetailsResponse = new ResponseEntity<String>("SAP server is down, please come back later", HttpStatus.OK);
-            return sapGetRoleDetailsResponse;
         }
 
     }
@@ -150,27 +142,10 @@ public class TakeAction implements Action {
 
     private String checkSourceForSapDetailReply(String responseMsgToSlack) {
 
-        String concatMsg = null;
-        if (responseMsgToSlack.contains("errordetails")) {
-            // TODO error detail
-        } else {
-            SapDetailRoot sdr = gson.fromJson(responseMsgToSlack, SapDetailRoot.class);
-            concatMsg = sdr.getD().getAgrtext();
-
-        }
 
 
-        String response;
-        if (source != null && source.equals("slack")) {
-            logger.debug("============{}", responseMsgToSlack);
-            response = concatMsg;
 
-        } else {
-            if (responseMsgToSlack.equals("SAP server is down, please come back later")) {
-                response = responseMsgToSlack;
             } else {
-                response = "We will send you an Email with all your details";
-                //TODO Send Email here later
             }
         }
         return response;

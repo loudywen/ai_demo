@@ -5,5 +5,4 @@ package com.devon.demo.main.service;
  */
 public interface Action {
     String responseToAction();
-
 }
