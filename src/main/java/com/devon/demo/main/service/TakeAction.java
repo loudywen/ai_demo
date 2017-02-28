@@ -1,21 +1,17 @@
 package com.devon.demo.main.service;
 
+import ai.api.model.AIOutputContext;
+import ai.api.model.Fulfillment;
 import ai.api.model.Result;
 import com.devon.demo.main.AiDemoApplication;
 import com.devon.demo.main.model.sapdetail.SapDetailRoot;
-import com.devon.demo.util.Utility;
+import com.devon.demo.main.model.sapdetailerror.SapDetailError;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -27,7 +23,8 @@ public class TakeAction implements Action {
     private Result result;
     private String source;
     private DummyDB dummyDB;
-    private RestTemplate restTemplate;
+    private ObjectMapper mapper = new ObjectMapper();
+
     private static final Logger logger = LoggerFactory.getLogger(TakeAction.class);
 
     private String[] responseSentence = {"can you provide your pin number", "you are not a valid user, do you want to provide your user id again"};
@@ -37,20 +34,19 @@ public class TakeAction implements Action {
 
     private static final String USER_ID = "userid";
     private static final String PIN = "pin";
+    private static final String SAP_CATEGORY = "sap_category";
 
     private static final String ENTER_USER_ID_INTENT = "enter.userid";
     private static final String PIN_INTENT = "pin";
-    private TaskService taskService;
-    private Environment env;
+    private Fulfillment fulfillment;
+    private SapAction sapAction;
 
-
-    public TakeAction(Result result, String source, DummyDB dummyDB, RestTemplate restTemplate) {
+    public TakeAction(Fulfillment fulfillment, Result result, String source, DummyDB dummyDB) {
         this.result = result;
         this.source = source;
         this.dummyDB = dummyDB;
-        this.restTemplate = restTemplate;
-//        this.taskService = (GetRoleDetailsAsyncTaskImpl) AiDemoApplication.getApplicationContext().getBean("getRoleDetailsAsyncTaskImpl");
-        this.env = AiDemoApplication.getApplicationContext().getEnvironment();
+        this.sapAction = (SapActionImpl) AiDemoApplication.getApplicationContext().getBean("sapActionImpl");
+        this.fulfillment = fulfillment;
     }
 
 
@@ -71,82 +67,87 @@ public class TakeAction implements Action {
 
         String response;
         if (dummyDB.findUserID(result.getStringParameter(USER_ID).toLowerCase())) {
-            response = checkSource(responseSentence[0]);
-
+            response = responseSentence[0];
+            resetUserId();
         } else {
-            response = checkSource(responseSentence[1]);
+            response = responseSentence[1];
         }
         return response;
     }
 
 
     private String pinValidate() {
+        String sapResponse;
         String response;
         if (dummyDB.findUserID(result.getStringParameter(USER_ID).toLowerCase())) {
             if (dummyDB.findPin(result.getStringParameter(USER_ID).toLowerCase(), result.getIntParameter(PIN))) {
-                ResponseEntity<String> sapGetRoleDetailsResponse = callSAPToGetRoleDetails(result.getStringParameter(USER_ID).toLowerCase());
-                response = checkSourceForSapDetailReply(sapGetRoleDetailsResponse.getBody().toString());
+                sapResponse = sapAction.takeSapAction(result.getStringParameter(SAP_CATEGORY), result.getStringParameter(USER_ID).toLowerCase());
+                response = checkSourceForSapDetailReply(sapResponse);
+                ResetPinContext();
+
             } else {
-                response = checkSource("Invalid PIN, do you want to try again?");
+                resetUserId();
+                response = "Invalid PIN, do you want to try again?";
             }
         } else {
-            response = checkSource(responseSentence[1]);
-        }
-
-        return response;
-    }
-
-    private ResponseEntity<String> callSAPToGetRoleDetails(String userid) {
-        ResponseEntity<String> sapGetRoleDetailsResponse;
-        try {
-            String url = String.format(env.getProperty("sap.roles.details"), userid);
-
-            logger.debug("url: {}", url);
-            URI uri = new URI(url);
-            MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
-            headers.add("Content-Type", "text/plain");
-            headers.add("Authorization", "Basic " + Utility.encodeAuthorization("mssbots", "Miracle@121"));
-
-            HttpEntity<String> toRest2 = new HttpEntity<String>(headers);
-            sapGetRoleDetailsResponse = restTemplate.exchange(uri, HttpMethod.GET, toRest2, String.class);
-            logger.debug("SAP get role details response: {}", sapGetRoleDetailsResponse.getBody().toString());
-
-           /* logger.debug("Async call - enter");
-           *//* DeferredResult<String> deferredResult = new DeferredResult<>();
-            CompletableFuture.supplyAsync(() -> taskService.buildResponse(userid))
-                    .whenCompleteAsync((result, throwable) -> deferredResult.setResult(result.getBody()));
-            *//*
-
-                logger.error(ex.getMessage(), ex);*/
-            /*    return response2;
-            }*/
-
-           /* logger.debug("Async call - release");*/
-
-
-            return sapGetRoleDetailsResponse;
-        }
-
-    }
-
-    private String checkSource(String responseMsg) {
-        String response;
-        if (source != null && source.equals("slack")) {
-            response = FOR_RESPONSE_BACK_TO_SLACK_SENDER + responseMsg;
-
-        } else {
-            response = responseMsg;
+            response = responseSentence[1];
         }
         return response;
     }
+
+
+    private void resetUserId() {
+        AIOutputContext outContext_pre_input = new AIOutputContext();
+        outContext_pre_input.setLifespan(0);
+        outContext_pre_input.setName("pre-input");
+        fulfillment.setContextOut(outContext_pre_input);
+    }
+
+    private void ResetPinContext() {
+        AIOutputContext outContext_pin = new AIOutputContext();
+        outContext_pin.setLifespan(0);
+        outContext_pin.setName("pin");
+
+        AIOutputContext outContext_pre_input = new AIOutputContext();
+        outContext_pre_input.setLifespan(0);
+        outContext_pre_input.setName("pre-input");
+
+        List<AIOutputContext> listContextToRest = new ArrayList<>();
+        listContextToRest.add(outContext_pin);
+        listContextToRest.add(outContext_pre_input);
+
+        fulfillment.setContextOut(listContextToRest);
+    }
+
 
     private String checkSourceForSapDetailReply(String responseMsgToSlack) {
+        String concatMsg;
+        String response;
+        try {
 
-
-
-
+            if (responseMsgToSlack.contains("errordetails")) {
+                SapDetailError sde = mapper.readValue(responseMsgToSlack, SapDetailError.class);
+                concatMsg = sde.getError().getMessage().getValue();
+                logger.debug("error concat:{}", concatMsg);
             } else {
+                SapDetailRoot sdr = mapper.readValue(responseMsgToSlack, SapDetailRoot.class);
+                concatMsg = "Your role is: " + sdr.getD().getAgrname() + ". Role description: " + sdr.getD().getAgrtext();
+                logger.debug("detail concat:{}", concatMsg);
             }
+
+            if (source != null && source.equals("slack")) {
+                response = concatMsg;
+            } else {
+                if (responseMsgToSlack.equals("SAP server is down, please come back later")) {
+                    response = responseMsgToSlack;
+                } else {
+                    response = "We will send you an Email with all your details";
+                    //TODO Send Email here later
+                }
+            }
+        } catch (Exception ex) {
+            logger.error(ex.getMessage(), ex);
+            response = "We are having issue with our backend system, please come back later";
         }
         return response;
     }

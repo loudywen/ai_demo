@@ -57,7 +57,7 @@ public class Webhook extends AIWebhookServlet {
 
 
             Result result = request.getResult();
-            Action action = new TakeAction(response,result, (request.getOriginalRequest() != null) ? request.getOriginalRequest().getSource() : null, dummyDB, restTemplate);
+            Action action = new TakeAction(response,result, (request.getOriginalRequest() != null) ? request.getOriginalRequest().getSource() : null, dummyDB);
 
            /* String key = request.getOriginalRequest().getSource();
             String channel = (String) request.getOriginalRequest().getData().get("channel");
