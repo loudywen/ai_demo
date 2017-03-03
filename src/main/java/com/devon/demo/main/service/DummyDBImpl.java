@@ -37,11 +37,9 @@ public class DummyDBImpl implements DummyDB {
         logger.debug("get user id: {}", pinDB.get(userId));
         logger.debug("received pin: {}", pin);
         if (pinDB.containsKey(userId)) {
-
             if (pinDB.get(userId) == pin) {
                 isValid = true;
             }
-
         }
         return isValid;
     }

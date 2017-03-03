@@ -37,4 +37,18 @@ public class Config {
         return restTemplate;
 
     }
+  /*  @Configuration
+    static class CassandraConfig extends AbstractCassandraConfiguration{
+        @Autowired
+        Environment env;
+        @Override
+        protected String getContactPoints() {
+            return env.getProperty("cassandra.host");
+        }
+
+        @Override
+        protected String getKeyspaceName() {
+            return null;
+        }
+    }*/
 }
