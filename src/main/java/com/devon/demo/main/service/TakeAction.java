@@ -38,9 +38,9 @@ public class TakeAction implements Action {
     private static final String SAP_CATEGORY = "sap_category";
     private static final String OLD_SAP_CATEGORY = "old_sap_category";
 
-    private static final String ENTER_USER_ID_INTENT = "enter.userid";
-    private static final String PIN_INTENT = "pin";
-    private static final String ANOTHER_QUESTION_YES_INTENT = "another.question.yes";
+    private static final String ENTER_USER_ID_ACTION = "enter.userid";
+    private static final String PIN_ACTION = "pin";
+    private static final String ANOTHER_QUESTION_YES_ACTION = "another.question.yes";
 
     private Fulfillment fulfillment;
     private SapAction sapAction;
@@ -58,11 +58,11 @@ public class TakeAction implements Action {
     public String responseToAction() {
 
         String response = null;
-        if (result.getAction().equalsIgnoreCase(ENTER_USER_ID_INTENT)) {
+        if (result.getAction().equalsIgnoreCase(ENTER_USER_ID_ACTION)) {
             response = userValidate();
-        } else if (result.getAction().equalsIgnoreCase(PIN_INTENT)) {
+        } else if (result.getAction().equalsIgnoreCase(PIN_ACTION)) {
             response = pinValidate();
-        } else if (result.getAction().equalsIgnoreCase(ANOTHER_QUESTION_YES_INTENT)) {
+        } else if (result.getAction().equalsIgnoreCase(ANOTHER_QUESTION_YES_ACTION)) {
             if (result.getStringParameter(OLD_SAP_CATEGORY).equals(result.getStringParameter(SAP_CATEGORY))) {
                 response = "You have ask this before, please ask another question or say \"stop/cancel\" to end the conversation, thanks";
             } else {
