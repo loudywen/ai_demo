@@ -68,7 +68,7 @@ public class TakeAction implements Action {
             } else {
                 String sapResponse = sapAction.takeSapAction(result.getStringParameter(SAP_CATEGORY), result.getStringParameter(USER_ID).toLowerCase());
                 response = checkSourceForSapDetailReply(sapResponse);
-                ResetAnotherQuestionContext();
+                resetAnotherQuestionContext();
             }
         }
         return response;
@@ -96,7 +96,6 @@ public class TakeAction implements Action {
                 sapResponse = sapAction.takeSapAction(result.getStringParameter(SAP_CATEGORY), result.getStringParameter(USER_ID).toLowerCase());
                 response = checkSourceForSapDetailReply(sapResponse);
                 resetPinContext();
-
 
             } else {
                 resetUserIdContext();
@@ -144,7 +143,7 @@ public class TakeAction implements Action {
     }
 
 
-    private void ResetAnotherQuestionContext() {
+    private void resetAnotherQuestionContext() {
         AIOutputContext outContext_another_question = new AIOutputContext();
         outContext_another_question.setLifespan(0);
         outContext_another_question.setName("another-question");

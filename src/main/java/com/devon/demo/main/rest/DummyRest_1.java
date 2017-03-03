@@ -12,22 +12,31 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
+/**
+ * The type Dummy rest 1.
+ */
 @RestController
 public class DummyRest_1 {
 
     private static final Logger logger = LoggerFactory.getLogger(DummyRest_1.class);
-
-
     private final TaskService taskService;
 
+    /**
+     * Instantiates a new Dummy rest 1.
+     *
+     * @param taskService the task service
+     */
     @Autowired
     public DummyRest_1(TaskService taskService) {
-
         this.taskService = taskService;
-
     }
 
-
+    /**
+     * Another rest call deferred result.
+     *
+     * @param userid the userid
+     * @return the deferred result
+     */
     @GetMapping("/findbyuser")
     @ResponseBody
     public DeferredResult<User> anotherRestCall( @RequestParam(value="userid") String userid) {
