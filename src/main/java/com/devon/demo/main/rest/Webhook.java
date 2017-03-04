@@ -76,8 +76,9 @@ public class Webhook extends AIWebhookServlet {
             data.put("slack", json);
             response.setData(data);*/
 
-
-            response.setSpeech(action.responseToAction());
+            String temp = action.responseToAction();
+            response.setSpeech(temp);
+            response.setDisplayText(temp);
 
 
 

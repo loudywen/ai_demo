@@ -1,11 +1,14 @@
+/*
 package com.devon.demo.main.model.user;
 
 import java.io.Serializable;
 import org.springframework.data.cassandra.mapping.PrimaryKey;
 import org.springframework.data.cassandra.mapping.Table;
+*/
 /**
  * Created by Devon on 3/2/2017.
- */
+ *//*
+
 @Table
 public class User implements Serializable {
   private static final long serialVersionUID = 1L;
@@ -37,3 +40,4 @@ public class User implements Serializable {
         '}';
   }
 }
+*/
