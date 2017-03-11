@@ -1,27 +1,26 @@
 
-package com.devon.demo.main.model.sapdetailerror;
+package com.devon.demo.main.model.sapunlock;
 
 import java.io.Serializable;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import java.lang.*;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class SapDetailError implements Serializable {
+public class SapUnlock implements Serializable {
 
-  @SerializedName("error")
+  @SerializedName("d")
   @Expose
-  private Error error;
-  private final static long serialVersionUID = 3523936707585624053L;
+  private D d;
+  private final static long serialVersionUID = -3599318084513357361L;
 
-  public Error getError() {
-    return error;
+  public D getD() {
+    return d;
   }
 
-  public void setError(Error error) {
-    this.error = error;
+  public void setD(D d) {
+    this.d = d;
   }
 
   @Override
@@ -31,7 +30,7 @@ public class SapDetailError implements Serializable {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder().append(error).toHashCode();
+    return new HashCodeBuilder().append(d).toHashCode();
   }
 
   @Override
@@ -39,11 +38,11 @@ public class SapDetailError implements Serializable {
     if (other == this) {
       return true;
     }
-    if ((other instanceof SapDetailError) == false) {
+    if ((other instanceof SapUnlock) == false) {
       return false;
     }
-    SapDetailError rhs = ((SapDetailError) other);
-    return new EqualsBuilder().append(error, rhs.error).isEquals();
+    SapUnlock rhs = ((SapUnlock) other);
+    return new EqualsBuilder().append(d, rhs.d).isEquals();
   }
 
 }
