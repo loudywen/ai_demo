@@ -45,15 +45,10 @@ public class AiDemoApplicationTests {
       SapDetailRoot sdr = gson.fromJson(sapDetailJson, SapDetailRoot.class);
       StrBuilder strBuilder = new StrBuilder();
       sdr.getD().getResults().stream().forEach(result -> {
-
-
-       // System.out.println(result.getAgrName());
         strBuilder.append("Role: "+result.getAgrName() +"     Description: "+ result.getAgrText());
         strBuilder.append("\n");
       });
-
       //System.out.println(strBuilder.toString());
-
       Assert.assertEquals(holder, sdr.getD().getResults().get(0).getAgrName());
     } catch (Exception e) {
       e.printStackTrace();
@@ -433,6 +428,4 @@ public class AiDemoApplicationTests {
       + "]\n"
       + "}\n"
       + "}";
-
-
 }

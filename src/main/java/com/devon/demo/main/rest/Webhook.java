@@ -8,13 +8,11 @@ import com.devon.demo.main.service.DummyDB;
 import com.devon.demo.main.service.TakeAction;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import javax.servlet.annotation.WebServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.web.client.RestTemplate;
-
-import javax.servlet.annotation.WebServlet;
 
 /**
  * Created by diwenlao on 2/20/17.
@@ -23,29 +21,27 @@ import javax.servlet.annotation.WebServlet;
 @WebServlet(asyncSupported = true, value = "/webhook")
 public class Webhook extends AIWebhookServlet {
 
-    @Autowired
-    private Environment env;
+  private final Environment env;
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+  private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    private static final String EXCEPTION_RESPONSE = "Service is under maintenance or some exception happen at the backend :(";
-    private static final Logger logger = LoggerFactory.getLogger(Webhook.class);
-    private RestTemplate restTemplate;
-    private DummyDB dummyDB;
+  private static final String EXCEPTION_RESPONSE = "Service is under maintenance or some exception happen at the backend :(";
+  private static final Logger logger             = LoggerFactory.getLogger(Webhook.class);
+  //private RestTemplate restTemplate;
+  private DummyDB dummyDB;
 
-    @Autowired
-    private Webhook(RestTemplate restTemplate, DummyDB dummyDB) {
-        this.restTemplate = restTemplate;
-        this.dummyDB = dummyDB;
-    }
+  @Autowired
+  private Webhook(DummyDB dummyDB, Environment env) {
+    this.dummyDB = dummyDB;
+    this.env = env;
+  }
 
-    @Override
-    protected void doWebhook(AIWebhookRequest request, Fulfillment response) {
+  @Override
+  protected void doWebhook(AIWebhookRequest request, Fulfillment response) {
 
-        logger.debug("Received request: {}", request);
+    logger.debug("Received request: {}", request);
 
-
-        try {
+    try {
             /*URI uri = new URI(env.getProperty("dummrest1.rest1"));
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
             headers.add("Content-Type", "text/plain");
@@ -55,9 +51,10 @@ public class Webhook extends AIWebhookServlet {
             ResponseEntity<String> response2 = restTemplate.exchange(uri, HttpMethod.POST, toRest2, String.class);
             */
 
-
-            Result result = request.getResult();
-            Action action = new TakeAction(response,result, (request.getOriginalRequest() != null) ? request.getOriginalRequest().getSource() : null, dummyDB);
+      Result result = request.getResult();
+      Action action = new TakeAction(response, result,
+          (request.getOriginalRequest() != null) ? request.getOriginalRequest().getSource() : null,
+          dummyDB);
 
            /* String key = request.getOriginalRequest().getSource();
             String channel = (String) request.getOriginalRequest().getData().get("channel");
@@ -76,17 +73,16 @@ public class Webhook extends AIWebhookServlet {
             data.put("slack", json);
             response.setData(data);*/
 
-            String temp = action.responseToAction();
-            response.setSpeech(temp);
-            response.setDisplayText(temp);
+      String temp = action.responseToAction();
+      response.setSpeech(temp);
+      response.setDisplayText(temp);
 
 
-
-        } catch (Exception ex) {
-            response.setSpeech(EXCEPTION_RESPONSE);
-            logger.error(ex.getMessage(), ex);
-        }
+    } catch (Exception ex) {
+      response.setSpeech(EXCEPTION_RESPONSE);
+      logger.error(ex.getMessage(), ex);
     }
+  }
 
 
 }
