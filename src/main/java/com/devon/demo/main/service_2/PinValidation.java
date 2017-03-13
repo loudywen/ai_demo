@@ -5,6 +5,7 @@ import ai.api.model.Result;
 import com.devon.demo.main.AiDemoApplication;
 import com.devon.demo.main.constant.CommonConstant;
 import com.devon.demo.main.service.DummyDB;
+import com.devon.demo.main.service.SapAction;
 import com.devon.demo.util.Utility;
 
 /**
@@ -12,11 +13,13 @@ import com.devon.demo.util.Utility;
  */
 public class PinValidation implements IValidation {
 
-  private DummyDB dummyDB;
+  private DummyDB   dummyDB;
+  private SapAction sapAction;
 
   public PinValidation() {
     dummyDB = (DummyDB) AiDemoApplication.getApplicationContext().getBean("dummyDBImpl");
-
+    this.sapAction = (SapAction) AiDemoApplication.getApplicationContext()
+        .getBean("sapActionImpl");
   }
 
   @Override
