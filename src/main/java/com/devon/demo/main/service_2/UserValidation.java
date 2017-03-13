@@ -29,7 +29,4 @@ public class UserValidation implements IValidation {
     }
     return response;
   }
-
-
-
 }

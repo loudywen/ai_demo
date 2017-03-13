@@ -6,13 +6,10 @@ import ai.api.web.AIWebhookServlet;
 import com.devon.demo.main.service.Action;
 import com.devon.demo.main.service.DummyDB;
 import com.devon.demo.main.service.TakeAction;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import javax.servlet.annotation.WebServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 
 /**
  * Created by diwenlao on 2/20/17.
@@ -21,36 +18,21 @@ import org.springframework.core.env.Environment;
 @WebServlet(asyncSupported = true, value = "/webhook")
 public class Webhook extends AIWebhookServlet {
 
-  private final Environment env;
-
-  private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
   private static final String EXCEPTION_RESPONSE = "Service is under maintenance or some exception happen at the backend :(";
   private static final Logger logger             = LoggerFactory.getLogger(Webhook.class);
-  //private RestTemplate restTemplate;
-  private DummyDB dummyDB;
 
+  private DummyDB dummyDB;
   @Autowired
-  private Webhook(DummyDB dummyDB, Environment env) {
+  private Webhook(DummyDB dummyDB) {
     this.dummyDB = dummyDB;
-    this.env = env;
+
   }
 
   @Override
   protected void doWebhook(AIWebhookRequest request, Fulfillment response) {
-
     logger.debug("Received request: {}", request);
 
     try {
-            /*URI uri = new URI(env.getProperty("dummrest1.rest1"));
-            MultiValueMap<String, String> headers = new LinkedMultiValueMap<String, String>();
-            headers.add("Content-Type", "text/plain");
-            headers.add("Authorization", "Basic " + Utility.encodeAuthorization("user", "password"));
-            HttpEntity<String> toRest2 = new HttpEntity<String>(request.getResult().getResolvedQuery(), headers);
-
-            ResponseEntity<String> response2 = restTemplate.exchange(uri, HttpMethod.POST, toRest2, String.class);
-            */
-
       Result result = request.getResult();
       Action action = new TakeAction(response, result,
           (request.getOriginalRequest() != null) ? request.getOriginalRequest().getSource() : null,
